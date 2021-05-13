@@ -1,20 +1,11 @@
-def parity(x):
-    result = 0
-    while x:
-        result ^= 1
-        print("result:", bin(result))
-        x &= x - 1 # drop the lowest set bit of x
-        print("x:", bin(x))
-    return result
+class a_class:
+    def __init__(self, number): 
+        self.number = number
 
-x = 0b00101100
-parity(x)
 
-"""
-result 0b1 -- count one 1s
-x 0b101000 -- erase lowest 1
-result 0b0 -- count two 1s
-x 0b100000 -- erase lowest 1
-result 0b1 -- count three 1s
-x 0b0 -- erase lowest 1
-"""
+a = a_class(1)
+print(a.number)
+b = a
+a = a_class(2)
+print(a.number)
+print(b.number)

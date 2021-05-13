@@ -24,16 +24,16 @@ class Solution:
         #     curr.next, prev, curr = prev, curr, curr.next
         # return prev
 
-        """
-        method3: recursion
-        """
-        if not head or not head.next:
-            return head
+        # """
+        # method3: recursion
+        # """
+        # if not head or not head.next:
+        #     return head
 
-        cur = self.reverseList(head.next)
-        head.next.next = head
-        head.next = None
-        return cur
+        # cur = self.reverseList(head.next)
+        # head.next.next = head
+        # head.next = None
+        # return cur
 
 if __name__ == '__main__':
     s = Solution()
