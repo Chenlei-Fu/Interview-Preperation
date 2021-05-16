@@ -250,3 +250,201 @@ class Solution:
 
 ![reverse](img/reverse.png)
 
+### [141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
+
+**Solution**
+
+* Time complexity: `O(n)`
+* Space complexity: `O(1)`
+
+```python
+class Solution:
+    def hasCycle(self, head: ListNode) -> bool:
+        if not head:
+            return False
+        
+        slower, faster = head, head
+        while faster.next and faster.next.next:
+            slower = slower.next
+            faster = faster.next.next
+            if slower == faster:
+                return True
+        return False
+```
+
+
+
+**Explanation**
+
+[Floyd's tortoise and hare](https://en.wikipedia.org/wiki/Cycle_detection#Tortoise_and_hare)
+
+
+
+**Follow Ups**
+
+[142. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle-ii/)
+
+**Solution**
+
+* Time complexity: `O(n)`
+* Space complexity: `O(1)`
+
+```python
+class Solution:
+    def detectCycle(self, head: ListNode) -> ListNode:
+        if not head:
+            return None
+        
+        slower, faster = head, head
+        while faster.next and faster.next.next:
+            slower = slower.next
+            faster = faster.next.next
+            if slower == faster:
+                tmp = head
+                while tmp != slower:
+                    tmp = tmp.next
+                    slower = slower.next
+                return tmp
+        return None
+```
+
+
+
+**Explanation**
+
+<img src = "./img/list_cycle.png" width = 600px/>
+
+
+
+### [23. Merge k Sorted Lists](https://leetcode.com/problems/merge-k-sorted-lists/)
+
+**Solution**
+
+```python
+class Solution:
+    def mergeKLists(self, lists: List[ListNode]) -> ListNode:
+        """
+        divide and couquer
+        """
+        if not lists:
+            return None
+        n = len(lists)
+        if n == 1:
+            return lists[0]
+        mid = n // 2
+        l, r = self.mergeKLists(lists[:mid]), self.mergeKLists(lists[mid:])
+        return self.merge(l, r)
+    
+    def merge(self, l, r):
+        """
+        merge two sorted list
+        """
+        dummy = ListNode(-1)
+        cur = dummy # 更新dummy本身
+        while l and r:
+            if l.val < r.val:
+                cur.next = ListNode(l.val)
+                l = l.next
+            else:
+                cur.next = ListNode(r.val)
+                r = r.next
+            cur = cur.next
+        cur.next = l or r
+        return dummy.next 
+```
+
+
+
+
+
+### [147. Insertion Sort List](https://leetcode.com/problems/insertion-sort-list/)
+
+**Solution**
+
+* Time complexity: `O(n^2)`
+
+* Space complexity: `O(1)`
+
+```python
+class Solution:
+    def insertionSortList(self, head: ListNode) -> ListNode:
+        """
+        dummy = new ListNode(-1); //new starter of the sorted list (new head)
+		    cur = head; //the node will be inserted
+		    pre = dummy; //insert node between pre and pre.next
+		    next = null; //the next node will be inserted
+        """
+        if not head:
+            return None
+        
+        dummy = ListNode(-1)
+        cur, pre, next_ = head, dummy, None
+        while cur:
+            next_ = cur.next # store next for the next loop
+            
+            # check the existing new list
+            while pre.next and pre.next.val < cur.val:
+                pre = pre.next
+            
+            # insert new node to the new list
+            cur.next = pre.next
+            pre.next = cur
+            pre = dummy # update pre
+            cur = next_ # update cur as the next node
+        
+        return dummy.next
+```
+
+
+
+**Explanation**
+
+Don't try to do in-lines insertion, instead, we can create a new linked list.
+
+
+
+**Follow ups**
+
+compare different sorting algorithm of linked list.
+
+![sorting_algorithm](/Users/charliefu/Library/Mobile Documents/com~apple~CloudDocs/Tutorial Resources/computer science/Interview-Prep/summary/img/sorting_algorithm.png)
+
+[148. Sort List](https://leetcode.com/problems/sort-list/)
+
+* time complexity: `O(nlogn)`
+* space complexity: `O(logn)`
+
+```python
+class Solution:
+    def sortList(self, head: ListNode) -> ListNode:
+        if not head or not head.next:
+            return head
+        
+        slower = faster = head
+        while faster.next and faster.next.next:
+            slower = slower.next
+            faster = faster.next.next 
+        mid = slower.next
+        slower.next = None
+        return self.merge(self.sortList(head), self.sortList(mid))
+    
+    def merge(self, l, r):
+        dummy = cur = ListNode(-1)
+        while l and r:
+            if l.val < r.val:
+                cur.next = ListNode(l.val)
+                l = l.next
+            else:
+                cur.next = ListNode(r.val)
+                r = r.next
+            cur = cur.next
+        cur.next = l or r
+        return dummy.next
+```
+
+
+
+**my errors**
+
+The base case for recursion is `not head or not head.next`. I forgot to consider `not head.next`, which results in endless recursion. 
+
