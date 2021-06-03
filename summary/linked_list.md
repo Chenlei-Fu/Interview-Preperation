@@ -353,6 +353,30 @@ class Solution:
         return dummy.next 
 ```
 
+**follow ups**
+
+If we only need to merge two sorted list, please use recursion to solve the problem:
+
+[21. Merge Two Sorted List](https://leetcode.com/problems/merge-two-sorted-lists/)
+
+```python
+class Solution:
+    def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
+        """
+        iteration method is very easy, let's use the recursion method
+        """
+        if not l1 or not l2:
+            return l1 or l2
+        if l1.val < l2.val:
+            l1.next = self.mergeTwoLists(l1.next, l2)
+            return l1
+        else:
+            l2.next = self.mergeTwoLists(l1, l2.next)
+            return l2
+```
+
+不需要dummy node，直接return `l1` 和 `l2` 
+
 
 
 
@@ -447,4 +471,283 @@ class Solution:
 **my errors**
 
 The base case for recursion is `not head or not head.next`. I forgot to consider `not head.next`, which results in endless recursion. 
+
+
+
+### [707. Design Linked List](https://leetcode.com/problems/design-linked-list/)
+
+```python
+class ListNode:
+    def __init__(self, val=-1, next=None):
+        self.val = val
+        self.next = next
+        
+class MyLinkedList:
+
+    def __init__(self):
+        """
+        Initialize your data structure here.
+        """
+        self.head = None
+        self.tail = None
+        self.n = 0
+        
+
+    def get(self, index: int) -> int:
+        """
+        Get the value of the index-th node in the linked list. If the index is invalid, return -1.
+        """
+        if index < 0 or index >= self.n: return -1
+        return self.getNode(index).val
+
+        
+
+    def addAtHead(self, val: int) -> None:
+        """
+        Add a node of value val before the first element of the linked list. After the insertion, the new node will be the first node of the linked list.
+        """
+        adding = ListNode(val, self.head)
+        self.head = adding
+        if self.n == 0:
+            self.tail = self.head
+        self.n += 1
+        
+
+    def addAtTail(self, val: int) -> None:
+        """
+        Append a node of value val to the last element of the linked list.
+        """
+        adding = ListNode(val)
+        if self.n == 0:
+            self.head = self.tail = adding
+        else:
+            self.tail.next = adding
+            self.tail = adding
+        self.n += 1
+        
+        
+
+    def addAtIndex(self, index: int, val: int) -> None:
+        """
+        Add a node of value val before the index-th node in the linked list. If index equals to the length of linked list, the node will be appended to the end of linked list. If index is greater than the length, the node will not be inserted.
+        """
+        if index < 0 or index > self.n:
+            return
+        if index == 0: 
+            self.addAtHead(val)
+        elif index == self.n:
+            self.addAtTail(val)
+        else:
+            prev = self.getNode(index-1)
+            cur = prev.next
+            mid = ListNode(val, cur)
+            prev.next = mid
+            self.n += 1
+
+    def deleteAtIndex(self, index: int) -> None:
+        """
+        Delete the index-th node in the linked list, if the index is valid.
+        """
+        if index < 0 or index >= self.n:
+            return
+        prev = self.getNode(index-1)
+        prev.next = prev.next.next
+        if index == 0:
+            self.head = prev.next
+        if index == self.n-1:
+            self.tail = prev
+        self.n -= 1
+        
+        
+    def getNode(self, index) -> ListNode:
+        cur = ListNode(-1, self.head)
+        for _ in range(index+1):
+            cur = cur.next
+        return cur
+
+# Your MyLinkedList object will be instantiated and called as such:
+# obj = MyLinkedList()
+# param_1 = obj.get(index)
+# obj.addAtHead(val)
+# obj.addAtTail(val)
+# obj.addAtIndex(index,val)
+# obj.deleteAtIndex(index)
+```
+
+
+
+**my errors**
+
+1. 注意delete的edge cases是`index >= self.n` 而不是`index > self.n`
+
+2. For `getNode` function, since we would like to use `getNode` in other functions, it would be better to add a `temp` one for the edge case that get index = -1 for prev node.
+
+
+
+### [160. Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/)
+
+```python
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
+        l1, l2 = headA, headB
+        while l1 != l2:
+            l1 = l1.next if l1 else headB
+            l2 = l2.next if l2 else headA
+        return l1
+```
+
+**my error**
+
+循环需要轮换：`l1` connect to `l2 head` -> 否则会TLE因为可能长度差较大
+
+
+
+### [83. Remove Duplicates from Sorted List](https://leetcode.com/problems/remove-duplicates-from-sorted-list/)
+
+```python
+class Solution:
+    def deleteDuplicates(self, head: ListNode) -> ListNode:
+        cur = head
+        while cur:
+            while cur.next and cur.next.val == cur.val:
+                cur.next = cur.next.next
+            cur = cur.next
+        return head
+```
+
+**my errors**
+
+Pay attention to the case that duplicates have more than two -> we need to use two while loop for detect continuous duplicates. 
+
+
+
+### [19. Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/)
+
+```python
+class Solution:
+    def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
+        fast = head
+        for _ in range(n):
+            fast = fast.next
+
+        if not fast: # !!=====remove head====!!
+            return head.next 
+        
+        slow = head
+        while fast and fast.next:
+            fast = fast.next 
+            slow = slow.next
+        slow.next = slow.next.next
+        return head
+```
+
+**my errors**
+
+* if fast is `None`, do not return `None`!!!
+
+
+
+### [234. Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/)
+
+```python
+class Solution:
+    def isPalindrome(self, head: ListNode) -> bool:
+        """
+        method: reverse the right half list
+        and compare the reversed one and the left half one
+        """
+        if not head or not head.next:
+            return True
+        slow, fast = head, head
+        while fast and fast.next:
+            fast = fast.next.next
+            slow = slow.next
+        new_head = self.reverse(slow)
+        return self.isEqual(head, new_head)
+    
+    def reverse(self, head):
+        pre, cur = None, head
+        while cur:
+            tmp = cur.next
+            cur.next = pre
+            pre = cur
+            cur = tmp
+        return pre
+    
+    def isEqual(self, h1, h2):
+        while h1 and h2:
+            if h1.val != h2.val:
+                return None
+            h1 = h1.next
+            h2 = h2.next
+        return True
+```
+
+**Notes**
+
+We don't need to detect the length of two sublist when compare the equality. Because We already make sure `len(left) - len(right) <= 1` and the one more element is the middle one which doesn't need to be compared. 
+
+
+
+
+
+### [725. Split Linked List in Parts](https://leetcode.com/problems/split-linked-list-in-parts/)
+
+```python
+class Solution:
+    def splitListToParts(self, root: ListNode, k: int) -> List[ListNode]:
+        n = self.getLength(root)
+        size, mod = n//k, n%k
+        prev, cur = None, root
+        res = [size + 1] * mod + [size] * (k - mod)
+        print(res, size, mod)
+        for i, boxSize in enumerate(res):
+            if prev:
+                prev.next = None
+            res[i] = cur
+            for _ in range(boxSize):
+                prev, cur = cur, cur.next
+        return res
+            
+    def getLength(self, root):
+        res, cur = 0, root
+        while cur:
+            cur = cur.next 
+            res += 1
+        return res
+```
+
+**Notes**
+
+1. the return type is an array of ListNode
+2. use `prev` to help cut previous liked list
+3. boxSize can be calculated before the loop
+
+
+
+### [328. Odd Even Linked List](https://leetcode.com/problems/odd-even-linked-list/)
+
+```python
+class Solution:
+    def oddEvenList(self, head: ListNode) -> ListNode:
+        if not head or not head.next:
+            return head
+        
+        even, odd = head.next, head
+        even_head = even
+        while even and even.next:
+            odd.next = odd.next.next
+            odd = odd.next
+            even.next = even.next.next
+            even = even.next
+        
+        odd.next = even_head
+        return head
+```
+
+**Note**
+
+odd的长度>=even的长度
+
+所以不用考虑循环结束后odd为None的情况
 
