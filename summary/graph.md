@@ -172,6 +172,95 @@ class Solution:
 
 
 
+### [399. Evaluate Division](https://leetcode.com/problems/evaluate-division/)
+
+* Time Complexity: O(e + q*e)
+* Space complexity: O(e)
+
+**Method1: DFS**
+
+```python
+class Solution:
+    def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
+        g = defaultdict(dict)
+        for (x, y), v in zip(equations, values):
+            g[x][y] = v
+            g[y][x] = 1 / v
+
+        ans = [self.dfs(x, y, g, set()) if x in g and y in g else -1 for x, y in queries]
+        return ans
+
+    def dfs(self, x, y, g, visited):
+        if x == y:
+            return 1
+        visited.add(x)
+        for n in g[x]:
+            if n in visited: continue
+            visited.add(n)
+            d = self.dfs(n, y, g, visited)
+            if d > 0: return d * g[x][n]
+        return -1
+```
+
+**Method2: BFS**
+
+```python
+class Solution:
+    def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
+        g = defaultdict(dict)
+        for (x,y), v in zip(equations, values):
+            g[x][y] = v
+            g[y][x] = 1/v
+
+        ans = [self.bfs(x, y, g) if x in g and y in g else -1 for x, y in queries]
+        return ans
+    
+    def bfs(self, x, y, g):
+        if x == y: return 1
+        visited = set([x])
+        q = deque([(x, 1)]) # store x and current division from x
+        res = 1
+        while q:
+            cur, v = q.popleft()
+            for n in g[cur]:
+                if n in visited: continue
+                visited.add(n)
+                nv = v * g[cur][n]
+                if n == y: return nv
+                g[x][n] = nv  # this should be g[x][n] not g[cur][n]!
+                g[n][x] = 1/nv
+                q.append((n, nv))
+        return -1
+```
+
+
+
+### [997. Find the Town Judge](https://leetcode.com/problems/find-the-town-judge/)
+
+* Time complexity: O(n + t)
+* Space complexity: O(n)
+
+```python
+class Solution:
+    def findJudge(self, n: int, trust: List[List[int]]) -> int:
+        """
+        judge: indegree = n, outdegree = 0
+        """
+        degs = defaultdict(int)
+        for peer in trust:
+            degs[peer[0]] -= 1
+            degs[peer[1]] += 1
+
+        for i in range(1, n + 1):
+            if degs[i] == n - 1: # it should not be n!
+                return i
+        return -1
+```
+
+**Note**: we don't need to use two dictionaries!!
+
+
+
 ## Bipartite
 
 **Definition**:
@@ -247,6 +336,8 @@ class Solution:
                         return False
         return True
 ```
+
+
 
 
 
