@@ -261,6 +261,162 @@ class Solution:
 
 
 
+## Shortest Path
+
+General time complexity:
+
+![743-ep130](https://zxi.mytechroad.com/blog/wp-content/uploads/2017/12/743-ep130.png)
+
+### [743. Network Delay Time](https://leetcode.com/problems/network-delay-time/)
+
+Djikstra's algorithm
+
+```python
+class Solution:
+    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:
+        """
+        Shortest Path -> Dijkstra
+        """
+        # construct graph
+        graph = defaultdict(list)
+        for u, v, w in times:
+            graph[u].append((v, w))
+        
+        q = [(0, k)] # 0: dist, 1: node
+        t = {} # store node and time from k to node
+        
+        while q:
+            curDist, curNode=heapq.heappop(q) #current shortest dist
+            if curNode in t: continue
+            t[curNode] = curDist
+            for v, w in graph[curNode]:
+                heapq.heappush(q, (curDist + w, v))
+        
+        return max(t.values()) if len(t) == n else -1
+            
+```
+
+
+
+### [1091. Shortest Path in Binary Matrix](https://leetcode.com/problems/shortest-path-in-binary-matrix/)
+
+```python
+class Solution:
+    def shortestPathBinaryMatrix(self, grid: List[List[int]]) -> int:
+        if not grid or not grid[0]: return 0
+        if grid[0][0]: return -1
+        q, level, n = deque([(0, 0)]), 1, len(grid)
+        visited = [[0 for _ in range(n)] for _ in range(n)]
+        while q:
+            size = len(q)
+            for _ in range(size):
+                x, y = q.popleft()
+                if visited[x][y]: continue
+                if x == n-1 and y == n-1:
+                    return level
+                visited[x][y] = 1
+                for x_, y_ in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, -1), (-1, 1), (1, 1), (-1, -1)]:
+                    next_x = x + x_
+                    next_y = y + y_
+                    if not self.isValid(next_x, next_y, grid, visited, n):
+                        continue
+                    q.append((next_x, next_y)) 
+            level += 1
+        return -1
+     
+    def isValid(self, x, y, grid, visited, n):
+        if not (0 <= x < n) or not (0 <= y < n): return False
+        if grid[x][y]: return False
+        if visited[x][y]: return False
+        return True
+```
+
+**Note**
+
+* Please always extract a validate function, it's much easier for debug
+* We don't need to use a `isClear` variable, because if no points is valid in the level, the while loop will break
+
+
+
+### [847. Shortest Path Visiting All Notes](https://leetcode.com/problems/shortest-path-visiting-all-nodes/)
+
+Different from regular BFS: Every node can be visited more than ones. 
+
+1. We need to define a unique state to avoid duplicates
+
+`(curr_node, visited_nodes)`
+
+2. Init: push all nodes to the queue
+3. Use a 32 bit int to represent visited_nodes
+
+
+
+**Initial Solution**
+
+```python
+class Solution:
+    def shortestPathLength(self, graph: List[List[int]]) -> int:
+        """
+        Solution 1
+        """
+        n = len(graph)
+        expected = (1 << n) - 1
+        masks = [1 << i for i in range(n)]  # mask of i is visited
+        q = deque([(i, masks[i]) for i in range(n)])
+        level = 0
+        visited_states = [set() for i in range(n)]
+
+        while q:
+            size = len(q)
+            for _ in range(size):
+                node, state = q.popleft()
+                if state == expected: return level
+                if state in visited_states[node]: continue
+                visited_states[node].add(state)
+                for nb in graph[node]:
+                    new_state = state | masks[nb]  # new state
+                    q.append((nb, new_state))
+            level += 1
+        return -1
+```
+
+
+
+**Optimized Solution** beat 98%
+
+```python
+class Solution:
+    def shortestPathLength(self, graph: List[List[int]]) -> int:
+        n = len(graph)
+        expected = (1 << n) - 1
+        masks = [1 << i for i in range(n)] # mask of i is visited
+        q = deque([(i, masks[i]) for i in range(n)])
+        level = 0
+        visited_states = [{masks[i]} for i in range(n)]
+        
+        while q:
+            size = len(q)
+            for _ in range(size):
+                node, state = q.popleft()
+                if state == expected: return level
+                
+                # traverse each neighbor
+                for nb in graph[node]:
+                    new_state = state | masks[nb] # new state
+                    # pre-check here to for efficiency, as each steps increment may results
+                    # in huge # of nodes being added into queue
+                    if new_state == expected:
+                        return level + 1
+                    # for efficiency: only add when not visited
+                    if new_state not in visited_states[nb]:
+                        q.append((nb, new_state))
+                        visited_states[nb].add(new_state)
+            level += 1
+        return -1
+```
+
+
+
 ## Bipartite
 
 **Definition**:
@@ -488,4 +644,90 @@ class Solution:
 ```
 
 
+
+## Union Find
+
+Time complexity:
+
+1. For regular union and find, each operation takes O(logn) in average, and O(n) in worst case.
+2. For union by rank, it takes at most O(logn) time since the height of tree-like structure is restricted in O(logn).
+3. For path compression, the time complexity is reduced to O(1) in average and worst case, since the structure is flattened.
+
+
+
+### [399. Evaluate Division](https://leetcode.com/problems/evaluate-division/)
+
+![399-ep120](http://zxi.mytechroad.com/blog/wp-content/uploads/2017/12/399-ep120.png)
+
+```python
+class Solution:
+    def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
+        def find(x):
+            if x != parent[x][0]: # 否则直接返回1即可
+                px, pv = find(parent[x][0])
+                parent[x] = (px, parent[x][1] * pv) #update parent
+            return parent[x]
+    
+        def union(x, y):
+            rx, vx = find(x)
+            ry, vy = find(y)
+            if rx != ry: return -1.0 # not the same parent -> cannot divide
+            return vx/vy
+        
+        parent = {}
+        for (x, y), v in zip(equations, values):
+            if x not in parent and y not in parent:
+                parent[x] = (y, v)
+                parent[y] = (y, 1)
+            
+            elif x not in parent:
+                parent[x] = (y, v)
+            
+            elif y not in parent:
+                parent[y] = (x, 1/v)
+            
+            else:
+                rx, vx = find(x)
+                ry, vy = find(y)
+                parent[rx] = (ry, v / vx * vy)
+        
+        ans = [union(x, y) if x in parent and y in parent else -1 for x, y in queries]
+        return ans
+```
+
+
+
+### [684. Redundant Connection](https://leetcode.com/problems/redundant-connection/)
+
+* Time Complexity
+  * traverse all edges: O(n)
+  * union and find: O(logn)
+  * So the total time: O(nlog n) in average case
+* Space complexity: O(n)
+
+```python
+class Solution:
+    def findRedundantConnection(self, edges: List[List[int]]) -> List[int]:
+        def find(x):
+            if parent[x] == 0: # if no parent, return itself
+                return x
+            parent[x] = find(parent[x]) # if have parent, find it
+            return parent[x]
+        
+        def union(x, y):
+            rx = find(x)
+            ry = find(y)
+            if rx == ry: 
+                return False
+            parent[rx] = ry
+            return True
+            
+        
+        parent = [0] * len(edges)
+        for x, y in edges:
+            if not union(x-1, y-1): # if not, parent array will out of range
+                return [x, y]
+        
+        raise ValueError('illegal input')
+```
 
