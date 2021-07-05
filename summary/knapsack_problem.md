@@ -1,5 +1,11 @@
 # knapsack problem
-
+## Content
+- [knapsack problem](#knapsack-problem)
+  - [Content](#content)
+  - [Overview](#overview)
+      - [0-1 Knapsack](#0-1-knapsack)
+      - [Unbounded Knapsack (BKP)](#unbounded-knapsack-bkp)
+  - [Leetcode Problems](#leetcode-problems)
 ## Overview
 
 The **knapsack problem** is a problem in [combinatorial optimization](https://en.wikipedia.org/wiki/Combinatorial_optimization): Given a set of items, each with a weight and a value, determine the number of each item to include in a collection so that the total weight is less than or equal to a given limit and the total value is as large as possible.

@@ -1,14 +1,13 @@
 # Tree
-
-* [content](#content)
-  * [Recursion](#Recursion)
-
-
-
-
-
-
-
+## Content
+- [Tree](#tree)
+  - [Content](#content)
+  - [Recursion](#recursion)
+    - [1. Simple Traversal](#1-simple-traversal)
+    - [2. Depth of Tree](#2-depth-of-tree)
+    - [3. Balanced Tree](#3-balanced-tree)
+    - [4. max path (diameter)](#4-max-path-diameter)
+    - [5. Inversion](#5-inversion)
 ## Recursion
 
 ### 1. Simple Traversal
@@ -80,6 +79,27 @@ class Solution:
         if not root:
             return 0
         return max(self.maxDepth(root.left), self.maxDepth(root.right)) + 1
+```
+
+
+
+[366. Find Leaves of Binary Tree](https://leetcode.com/problems/find-leaves-of-binary-tree/)
+
+Use the height (depth) as the index of the return array
+
+```python
+class Solution:
+    def findLeaves(self, root: TreeNode) -> List[List[int]]:
+        res = []
+        self.height(root, res)
+        return res
+    
+    def height(self, root, res):
+        if not root: return -1
+        level = 1 + max(self.height(root.left, res), self.height(root.right, res))
+        if len(res) == level: res.append([]) # no enough space to store
+        res[level].append(root.val)
+        return level
 ```
 
 

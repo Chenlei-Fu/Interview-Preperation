@@ -1,6 +1,9 @@
 # Search
-
-
+## Content
+- [Search](#search)
+  - [Content](#content)
+  - [BFS](#bfs)
+    - [433. Minimum Genetic Mutation](#433-minimum-genetic-mutation)
 
 ## BFS
 
