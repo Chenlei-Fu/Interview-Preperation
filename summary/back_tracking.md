@@ -4,10 +4,15 @@
   - [Content](#content)
   - [Combination](#combination)
     - [22. Generate Parentheses](#22-generate-parentheses)
-    - [Combination Sum](#combination-sum)
+    - [39. Combination Sum](#39-combination-sum)
       - [Follow Ups](#follow-ups)
     - [17. Letter Combinations of a Phone Number](#17-letter-combinations-of-a-phone-number)
   - [Permutations](#permutations)
+    - [46. Permutations](#46-permutations)
+      - [Follow Ups](#follow-ups-1)
+  - [Subsets](#subsets)
+    - [78. Subsets](#78-subsets)
+      - [Follow Ups](#follow-ups-2)
 
 ## Combination
 
@@ -43,7 +48,7 @@ we don't need to append & remove the last element in built, because when the fun
 
 
 
-### [Combination Sum](https://leetcode.com/problems/combination-sum/description/)
+### [39. Combination Sum](https://leetcode.com/problems/combination-sum/description/)
 
 * Time Complexity: (target / avg(candidate)) * len(candidates) ^ (target / avg(candidate)) Or O(2^n) in general
 * Space Complexity: O(n)
@@ -146,4 +151,102 @@ class Solution:
 
 
 ## Permutations
+### [46. Permutations](https://leetcode.com/problems/permutations/)
+* Time Complexity: O(n * n!)
+  * Since the result contains n! permutations
+  * Each time we need to traverse n nums
+* Space Complexity: O(n * n!)
+  * There is n! output and each has n elements
+```python
+class Solution:
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        res = []
+        self.backTracking(nums, [], res)
+        return res
+    
+    def backTracking(self, nums, tmp, res):
+        if len(tmp) == len(nums):
+            res.append(tmp)
+            return
+        
+        for num in nums:
+            if num in tmp: continue
+            self.backTracking(nums, tmp + [num], res)
+```
 
+#### Follow Ups
+[47. Permutations II](https://leetcode.com/problems/permutations-ii/)
+
+```python
+class Solution:
+    def permuteUnique(self, nums: List[int]) -> List[List[int]]:
+        res = []
+        nums.sort()
+        self.backTracking(nums, [], res, [0]*len(nums))
+        return res
+    
+    def backTracking(self, nums, tmp, res, visited):
+        if len(tmp) == len(nums):
+            res.append(tmp)
+            return
+        
+        for i, num in enumerate(nums):
+            if visited[i]: continue
+            if i > 0 and nums[i] == nums[i-1] and not visited[i-1]: continue
+            visited[i] = 1
+            self.backTracking(nums, tmp + [num], res, visited)
+            visited[i] = 0
+```
+**Note**
+1. we need to sort, or the `nums[i] == nums[i-1]` cannot be applied
+2. ```if i > 0 and nums[i] == nums[i-1] and not visited[i-1]: continue` make sure the permutation is in order without duplicates (like `[2,2]`)
+
+
+## Subsets
+### [78. Subsets](https://leetcode.com/problems/subsets/)
+* Time Complexity: O(n * 2^n)
+* Space Complexity: O(n)
+```python
+class Solution:
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        res = []
+        nums.sort()
+        self.backTracking(nums, [], res, 0)
+        return res
+    
+    def backTracking(self, nums, tmp, res, start):
+        res.append(tmp)
+        for i in range(start, len(nums)):
+            self.backTracking(nums, tmp + [nums[i]], res, i+1) # not allow duplicates
+```
+
+**Method 2: iteration**
+```python
+class Solution:
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        res = [[]]
+        for num in nums:
+            size = len(res)
+            for i in range(size):
+                subset = res[i].copy()
+                subset.append(num)
+                res.append(subset)
+        return res
+```
+
+#### Follow Ups
+[90. Subsets II](https://leetcode.com/problems/subsets-ii/)
+```python
+class Solution:
+    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+        res = []
+        nums.sort()
+        self.backTracking(nums, [], res, 0)
+        return res
+    
+    def backTracking(self, nums, tmp, res, start):
+        res.append(tmp)
+        for i in range(start, len(nums)):
+            if i > start and nums[i] == nums[i-1]: continue
+            self.backTracking(nums, tmp + [nums[i]], res, i + 1)
+```
